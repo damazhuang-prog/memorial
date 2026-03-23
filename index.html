@@ -752,11 +752,11 @@ function showError(msg) {
 
 async function callClaude(userMsg) {
   messages.push({ role:'user', content:userMsg });
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+  const resp = await fetch('https://api.apiyi.com/v1/messages', {
     method:'POST',
     headers:{
       'Content-Type':'application/json',
-      'x-api-key':'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',
+      'x-api-key':'sk-e2YKRHMvLuKEyo8d89570558B98a4b449783D998DaDcF615',
       'anthropic-version':'2023-06-01',
       'anthropic-dangerous-direct-browser-access':'true'
     },
@@ -767,7 +767,7 @@ async function callClaude(userMsg) {
       messages
     })
   });
-  if (!resp.ok) { messages.pop(); throw new Error('请求失败'); }
+  if (!resp.ok) { const errBody = await resp.json().catch(() => ({})); messages.pop(); throw new Error('HTTP ' + resp.status + ': ' + (errBody.error?.message || JSON.stringify(errBody))); }
   const data = await resp.json();
   const reply = data.content?.find(b => b.type==='text')?.text || '';
   if (!reply) { messages.pop(); throw new Error('空回复'); }
@@ -788,7 +788,7 @@ async function sendMessage() {
     addAIBubble(reply);
   } catch(e) {
     setLoading(false);
-    showError('网络出了点问题，请再试一次');
+    const errMsg = e?.message || String(e) || '未知错误'; showError('错误: ' + errMsg);
   }
 }
 
