@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>缅怀空间</title>
+<style>
+  :root {
+    --bg: #faf7f2;
+    --cream: #f5efe4;
+    --sand: #e8dcc8;
+    --brown: #8b6f47;
+    --dark: #3d2b1f;
+    --text: #5c4033;
+    --light: #b09070;
+    --gold: #c9a84c;
+    --rose: #d4a5a5;
+    --green: #7a9e7e;
+    --shadow: rgba(139,111,71,0.12);
+    --serif: 'Songti SC','STSong','SimSun',Georgia,serif;
+    --sans: 'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:var(--sans); background:var(--bg); color:var(--dark); min-height:100vh; }
+
+  /* 导航 */
+  .nav { display:flex; background:white; border-bottom:1px solid var(--sand); position:sticky; top:0; z-index:100; box-shadow:0 2px 10px var(--shadow); overflow-x:auto; }
+  .nav::-webkit-scrollbar { display:none; }
+  .nav-btn { flex-shrink:0; padding:12px 10px; border:none; background:none; font-family:var(--sans); font-size:12px; color:var(--light); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.25s; white-space:nowrap; }
+  .nav-btn.active { color:var(--brown); border-bottom-color:var(--gold); font-weight:600; }
+  .page { display:none; }
+  .page.active { display:block; }
+
+  /* 通用 */
+  .pg { padding:18px 15px 60px; max-width:500px; margin:0 auto; }
+  .pg-header { text-align:center; margin-bottom:22px; }
+  .pg-icon { width:54px; height:54px; background:linear-gradient(135deg,var(--cream),var(--sand)); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; font-size:22px; box-shadow:0 4px 14px var(--shadow); }
+  .pg-title { font-family:var(--serif); font-size:18px; font-weight:600; letter-spacing:3px; margin-bottom:4px; }
+  .pg-sub { font-size:12px; color:var(--light); letter-spacing:0.5px; }
+  .card { background:white; border-radius:16px; padding:18px 16px; margin-bottom:12px; box-shadow:0 2px 14px var(--shadow); }
+  .card-title { font-family:var(--serif); font-size:13px; color:var(--brown); letter-spacing:2px; margin-bottom:14px; padding-bottom:9px; border-bottom:1px solid var(--cream); display:flex; align-items:center; gap:8px; }
+  .card-title::before { content:''; width:3px; height:13px; background:var(--gold); border-radius:2px; flex-shrink:0; }
+  .form-label { display:block; font-size:13px; color:var(--text); margin-bottom:6px; }
+  .form-group { margin-bottom:13px; }
+  .form-group:last-child { margin-bottom:0; }
+  .input { width:100%; padding:11px 13px; border:1.5px solid var(--sand); border-radius:10px; font-family:var(--sans); font-size:15px; color:var(--dark); background:var(--bg); outline:none; transition:all 0.25s; -webkit-appearance:none; }
+  .input:focus { border-color:var(--gold); background:white; box-shadow:0 0 0 3px rgba(201,168,76,0.1); }
+  textarea.input { resize:none; line-height:1.7; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .btn-primary { width:100%; padding:14px; background:linear-gradient(135deg,var(--brown),#a07840); border:none; border-radius:12px; color:white; font-family:var(--sans); font-size:15px; font-weight:600; letter-spacing:3px; cursor:pointer; box-shadow:0 4px 14px rgba(139,111,71,0.3); transition:all 0.25s; }
+  .btn-primary:active { transform:scale(0.98); }
+
+  /* ===== 小安页 ===== */
+  .xian-page-wrap { display:flex; flex-direction:column; height:calc(100vh - 48px); max-width:500px; margin:0 auto; }
+  .xiao-an-header { padding:14px 16px 10px; text-align:center; background:white; border-bottom:1px solid var(--cream); flex-shrink:0; }
+  .xiao-an-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,var(--cream),var(--sand)); display:flex; align-items:center; justify-content:center; margin:0 auto 7px; font-size:18px; box-shadow:0 3px 10px var(--shadow); }
+  .xiao-an-name { font-family:var(--serif); font-size:15px; font-weight:600; letter-spacing:2px; }
+  .xiao-an-sub { font-size:11px; color:var(--light); margin-top:2px; }
+  .chat-area { flex:1; overflow-y:auto; padding:14px 13px; display:flex; flex-direction:column; gap:12px; }
+  .chat-area::-webkit-scrollbar { width:3px; }
+  .chat-area::-webkit-scrollbar-thumb { background:var(--sand); border-radius:4px; }
+  .bubble-ai { max-width:88%; align-self:flex-start; }
+  .bubble-ai-name { font-size:11px; color:var(--light); font-family:var(--sans); margin-bottom:4px; padding-left:2px; }
+  .bubble-ai-inner { padding:12px 15px; background:white; border-radius:4px 16px 16px 16px; box-shadow:0 2px 10px var(--shadow); font-family:var(--serif); font-size:14px; line-height:1.9; color:var(--text); }
+  .bubble-user { max-width:84%; align-self:flex-end; }
+  .bubble-user-inner { padding:11px 14px; background:var(--brown); color:white; border-radius:16px 4px 16px 16px; font-family:var(--sans); font-size:14px; line-height:1.7; }
+  .typing-wrap { align-self:flex-start; }
+  .typing-inner { padding:13px 16px; background:white; border-radius:4px 16px 16px 16px; box-shadow:0 2px 10px var(--shadow); }
+  .dots { display:flex; gap:5px; align-items:center; }
+  .dots span { width:6px; height:6px; border-radius:50%; background:var(--sand); animation:bounce 1.1s infinite; }
+  .dots span:nth-child(2) { animation-delay:0.18s; }
+  .dots span:nth-child(3) { animation-delay:0.36s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+  .notice-bubble { max-width:92%; align-self:flex-start; }
+  .notice-bubble-name { font-size:11px; color:var(--light); font-family:var(--sans); margin-bottom:4px; padding-left:2px; }
+  .notice-bubble-inner { background:white; border-radius:4px 16px 16px 16px; box-shadow:0 2px 14px var(--shadow); overflow:hidden; }
+  .notice-bubble-header { padding:11px 15px 9px; border-bottom:1px solid var(--cream); display:flex; align-items:center; justify-content:space-between; }
+  .notice-bubble-title { font-family:var(--serif); font-size:13px; color:var(--brown); letter-spacing:1px; display:flex; align-items:center; gap:6px; }
+  .notice-bubble-title::before { content:''; width:3px; height:13px; background:var(--gold); border-radius:2px; display:block; }
+  .notice-bubble-tip { font-size:11px; color:var(--light); }
+  .notice-text { font-family:var(--serif); font-size:14px; color:var(--dark); line-height:2; white-space:pre-line; padding:13px 15px; background:var(--bg); margin:10px; border-radius:8px; border-left:3px solid var(--gold); }
+  .notice-text:focus { outline:none; background:var(--cream); }
+  .notice-actions { display:flex; gap:8px; padding:10px 12px 13px; }
+  .btn-copy { flex:1; padding:10px; background:var(--brown); border:none; border-radius:10px; color:white; font-size:13px; font-weight:600; letter-spacing:1px; cursor:pointer; }
+  .btn-reset { padding:10px 14px; background:var(--bg); border:1.5px solid var(--sand); border-radius:10px; font-size:13px; color:var(--text); cursor:pointer; }
+  .xiao-an-input-area { padding:10px 13px 14px; background:white; border-top:1px solid var(--cream); flex-shrink:0; box-shadow:0 -2px 10px var(--shadow); }
+  .xiao-an-input-row { display:flex; gap:8px; align-items:flex-end; }
+  .xiao-an-input { flex:1; padding:11px 13px; border:1.5px solid var(--sand); border-radius:12px; font-family:var(--sans); font-size:14px; color:var(--dark); background:var(--bg); outline:none; transition:all 0.25s; resize:none; max-height:90px; line-height:1.5; }
+  .xiao-an-input:focus { border-color:var(--gold); background:white; }
+  .xiao-an-send { width:42px; height:42px; background:var(--brown); border:none; border-radius:12px; color:white; font-size:17px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+  .xiao-an-send:disabled { background:var(--sand); cursor:not-allowed; }
+  .error-tip { font-size:12px; color:#c0392b; text-align:center; padding:5px 0 0; }
+
+  /* ===== 讣告页 ===== */
+  .notice-page-hero { background:linear-gradient(180deg,#f0e6d3 0%,var(--bg) 100%); padding:28px 20px 22px; text-align:center; }
+  .notice-deceased-avatar { width:86px; height:86px; border-radius:50%; background:linear-gradient(135deg,#e8d5b7,#d4b896); margin:0 auto 13px; display:flex; align-items:center; justify-content:center; font-size:34px; box-shadow:0 0 0 5px white,0 0 0 6px var(--sand),0 6px 22px var(--shadow); }
+  .notice-deceased-name { font-family:var(--serif); font-size:26px; font-weight:600; letter-spacing:4px; margin-bottom:5px; }
+  .notice-deceased-years { font-size:13px; color:var(--light); letter-spacing:2px; margin-bottom:14px; }
+  .notice-body-text { font-family:var(--serif); font-size:14px; color:var(--text); line-height:2; background:white; border-radius:12px; padding:16px; border-left:3px solid var(--gold); text-align:left; box-shadow:0 2px 10px var(--shadow); margin:0 4px; }
+  .ceremony-card { background:white; border-radius:14px; padding:14px 16px; margin:12px 0; box-shadow:0 2px 12px var(--shadow); display:flex; align-items:center; gap:12px; }
+  .ceremony-icon { width:40px; height:40px; border-radius:10px; background:var(--cream); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .ceremony-info .label { font-size:11px; color:var(--light); letter-spacing:1px; }
+  .ceremony-info .value { font-size:14px; color:var(--dark); font-weight:500; margin-top:2px; }
+
+  /* 献花区 */
+  .flower-section { margin-bottom:12px; }
+  .flower-list { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+  .flower-item { background:white; border-radius:12px; padding:12px 14px; box-shadow:0 2px 10px var(--shadow); display:flex; align-items:flex-start; gap:10px; }
+  .flower-avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--cream),var(--sand)); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:var(--brown); flex-shrink:0; }
+  .flower-info .flower-name { font-size:13px; font-weight:600; color:var(--dark); }
+  .flower-info .flower-type { font-size:12px; color:var(--light); margin-top:1px; }
+  .flower-info .flower-msg { font-family:var(--serif); font-size:13px; color:var(--text); margin-top:5px; line-height:1.7; }
+  .flower-time { margin-left:auto; font-size:11px; color:var(--sand); flex-shrink:0; }
+  .btn-flower { width:100%; padding:13px; background:white; border:1.5px solid var(--rose); border-radius:12px; color:var(--brown); font-family:var(--sans); font-size:14px; font-weight:600; letter-spacing:1px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 2px 10px var(--shadow); transition:all 0.2s; }
+  .btn-flower:active { background:var(--cream); }
+
+  /* 留言区 */
+  .msg-card { background:white; border-radius:13px; padding:13px 14px; margin-bottom:9px; box-shadow:0 2px 9px var(--shadow); position:relative; overflow:hidden; }
+  .msg-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:linear-gradient(180deg,var(--gold),var(--rose)); }
+  .msg-top { display:flex; align-items:center; gap:9px; margin-bottom:8px; }
+  .msg-avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--cream),var(--sand)); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; color:var(--brown); flex-shrink:0; }
+  .msg-name { font-size:13px; font-weight:600; color:var(--dark); }
+  .msg-relation { font-size:11px; color:var(--light); margin-top:1px; }
+  .msg-time { margin-left:auto; font-size:11px; color:var(--sand); flex-shrink:0; }
+  .msg-content { font-family:var(--serif); font-size:14px; color:var(--text); line-height:1.8; padding-left:2px; }
+  .msg-emoji { font-size:16px; margin-top:5px; }
+
+  /* 签到页 */
+  .checkin-hero { background:linear-gradient(180deg,#f0e6d3 0%,var(--bg) 100%); padding:24px 20px 20px; text-align:center; }
+  .checkin-avatar { width:82px; height:82px; border-radius:50%; background:linear-gradient(135deg,#e8d5b7,#d4b896); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:32px; box-shadow:0 0 0 4px white,0 0 0 5px var(--sand),0 5px 18px var(--shadow); }
+  .checkin-name { font-family:var(--serif); font-size:22px; font-weight:600; letter-spacing:4px; margin-bottom:4px; }
+  .checkin-years { font-size:12px; color:var(--light); letter-spacing:2px; margin-bottom:12px; }
+  .checkin-farewell { background:white; border-radius:10px; padding:11px 15px; border-left:3px solid var(--gold); text-align:left; box-shadow:0 2px 8px var(--shadow); }
+  .checkin-farewell p { font-family:var(--serif); font-size:13px; color:var(--text); line-height:1.9; }
+  .input-block { background:white; border-radius:13px; padding:13px 15px; margin-bottom:10px; box-shadow:0 2px 10px var(--shadow); display:flex; align-items:center; gap:10px; }
+  .input-block-label { font-size:13px; color:var(--light); white-space:nowrap; flex-shrink:0; }
+  .input-block input { flex:1; border:none; outline:none; font-family:var(--sans); font-size:15px; color:var(--dark); background:transparent; }
+  .input-block input::placeholder { color:var(--sand); }
+  .relation-wrap { background:white; border-radius:13px; padding:13px 15px; margin-bottom:10px; box-shadow:0 2px 10px var(--shadow); }
+  .relation-label { font-size:13px; color:var(--light); margin-bottom:9px; }
+  .relation-tags { display:flex; flex-wrap:wrap; gap:7px; }
+  .relation-tag { padding:6px 12px; border:1.5px solid var(--sand); border-radius:20px; background:var(--bg); font-size:13px; color:var(--text); cursor:pointer; transition:all 0.2s; }
+  .relation-tag.selected { background:var(--brown); border-color:var(--brown); color:white; }
+  .message-block { background:white; border-radius:13px; padding:13px 15px; margin-bottom:10px; box-shadow:0 2px 10px var(--shadow); }
+  .message-block-label { font-size:13px; color:var(--light); margin-bottom:8px; }
+  .message-block textarea { width:100%; border:none; outline:none; font-family:var(--serif); font-size:15px; color:var(--dark); line-height:1.8; resize:none; height:70px; background:transparent; }
+  .message-block textarea::placeholder { color:var(--sand); font-style:italic; }
+
+  /* emoji选择器 */
+  .emoji-picker { background:white; border-radius:13px; padding:13px 15px; margin-bottom:10px; box-shadow:0 2px 10px var(--shadow); }
+  .emoji-picker-label { font-size:13px; color:var(--light); margin-bottom:10px; }
+  .emoji-options { display:flex; flex-wrap:wrap; gap:8px; }
+  .emoji-opt { width:40px; height:40px; border-radius:10px; background:var(--bg); border:1.5px solid var(--sand); display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; transition:all 0.2s; }
+  .emoji-opt.selected { background:var(--cream); border-color:var(--gold); }
+
+  /* 缅怀页 */
+  .memorial-hero { background:linear-gradient(180deg,#ede0cc 0%,var(--bg) 100%); padding:24px 20px 20px; text-align:center; }
+  .m-avatar { width:78px; height:78px; border-radius:50%; background:linear-gradient(135deg,#e8d5b7,#d4b896); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:30px; box-shadow:0 0 0 4px white,0 0 0 5px var(--sand),0 4px 16px var(--shadow); }
+  .m-name { font-family:var(--serif); font-size:22px; font-weight:600; letter-spacing:4px; margin-bottom:4px; }
+  .m-years { font-size:12px; color:var(--light); letter-spacing:2px; margin-bottom:12px; }
+  .m-quote { background:white; border-radius:10px; padding:11px 14px; border-left:3px solid var(--gold); text-align:left; box-shadow:0 2px 8px var(--shadow); }
+  .m-quote p { font-family:var(--serif); font-size:13px; color:var(--text); line-height:1.9; }
+  .stats-row { display:flex; background:white; border-top:1px solid var(--cream); border-bottom:1px solid var(--cream); }
+  .stat-cell { flex:1; padding:14px 6px; text-align:center; position:relative; }
+  .stat-cell+.stat-cell::before { content:''; position:absolute; left:0; top:20%; height:60%; width:1px; background:var(--cream); }
+  .stat-num { font-family:var(--serif); font-size:19px; font-weight:600; color:var(--brown); display:block; }
+  .stat-desc { font-size:11px; color:var(--light); letter-spacing:1px; margin-top:2px; display:block; }
+
+  /* 家族情感空间 */
+  .family-space { background:white; border-radius:16px; padding:18px 16px; margin-bottom:12px; box-shadow:0 2px 14px var(--shadow); }
+  .family-space-title { font-family:var(--serif); font-size:14px; color:var(--brown); letter-spacing:2px; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .family-space-title::before { content:''; width:3px; height:14px; background:var(--gold); border-radius:2px; }
+  .family-input { width:100%; border:none; outline:none; font-family:var(--serif); font-size:15px; color:var(--dark); line-height:1.8; resize:none; height:80px; background:var(--bg); border-radius:10px; padding:12px; }
+  .family-input::placeholder { color:var(--sand); font-style:italic; }
+  .family-actions { display:flex; gap:8px; margin-top:10px; }
+  .btn-family-send { flex:1; padding:11px; background:var(--brown); border:none; border-radius:10px; color:white; font-size:13px; font-weight:600; letter-spacing:1px; cursor:pointer; }
+  .btn-family-occasion { padding:11px 14px; background:var(--bg); border:1.5px solid var(--sand); border-radius:10px; font-size:13px; color:var(--text); cursor:pointer; }
+
+  /* 家事告知 */
+  .occasion-modal { display:none; position:fixed; inset:0; background:rgba(61,43,31,0.5); z-index:300; align-items:flex-end; justify-content:center; padding:0; }
+  .occasion-modal.show { display:flex; }
+  .occasion-sheet { background:white; border-radius:20px 20px 0 0; padding:20px 16px 34px; width:100%; max-width:500px; animation:slideUp 0.3s ease; }
+  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+  .occasion-sheet-title { font-family:var(--serif); font-size:15px; color:var(--dark); letter-spacing:2px; margin-bottom:16px; text-align:center; }
+  .occasion-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px; }
+  .occasion-item { padding:12px 6px; border:1.5px solid var(--sand); border-radius:12px; background:var(--bg); text-align:center; cursor:pointer; transition:all 0.2s; }
+  .occasion-item.selected { border-color:var(--gold); background:var(--cream); }
+  .occasion-item .oc-icon { font-size:22px; margin-bottom:4px; }
+  .occasion-item .oc-label { font-size:12px; color:var(--text); }
+  .occasion-confirm { width:100%; padding:13px; background:var(--brown); border:none; border-radius:12px; color:white; font-size:14px; font-weight:600; letter-spacing:2px; cursor:pointer; }
+
+  /* 献花modal */
+  .flower-modal { display:none; position:fixed; inset:0; background:rgba(61,43,31,0.5); z-index:300; align-items:flex-end; justify-content:center; }
+  .flower-modal.show { display:flex; }
+  .flower-sheet { background:white; border-radius:20px 20px 0 0; padding:20px 16px 34px; width:100%; max-width:500px; animation:slideUp 0.3s ease; }
+  .flower-sheet-title { font-family:var(--serif); font-size:15px; color:var(--dark); letter-spacing:2px; margin-bottom:16px; text-align:center; }
+  .flower-types { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+  .flower-type-item { padding:14px 8px; border:1.5px solid var(--sand); border-radius:12px; background:var(--bg); text-align:center; cursor:pointer; transition:all 0.2s; }
+  .flower-type-item.selected { border-color:var(--rose); background:#fdf5f5; }
+  .flower-type-item .ft-icon { font-size:26px; margin-bottom:5px; }
+  .flower-type-item .ft-name { font-size:12px; color:var(--text); }
+  .flower-type-item .ft-price { font-size:11px; color:var(--light); margin-top:2px; }
+  .flower-msg-input { width:100%; padding:11px 13px; border:1.5px solid var(--sand); border-radius:10px; font-family:var(--serif); font-size:14px; color:var(--dark); background:var(--bg); outline:none; margin-bottom:14px; }
+  .flower-msg-input:focus { border-color:var(--rose); background:white; }
+  .flower-sender-input { width:100%; padding:11px 13px; border:1.5px solid var(--sand); border-radius:10px; font-family:var(--sans); font-size:14px; color:var(--dark); background:var(--bg); outline:none; margin-bottom:14px; }
+  .flower-sender-input:focus { border-color:var(--rose); background:white; }
+  .flower-confirm { width:100%; padding:13px; background:linear-gradient(135deg,#c0856a,var(--rose)); border:none; border-radius:12px; color:white; font-size:14px; font-weight:600; letter-spacing:2px; cursor:pointer; }
+
+  /* 弹窗 */
+  .overlay { display:none; position:fixed; inset:0; background:rgba(61,43,31,0.5); z-index:200; align-items:center; justify-content:center; padding:20px; }
+  .overlay.show { display:flex; }
+  .popup { background:white; border-radius:20px; padding:28px 22px; text-align:center; max-width:290px; width:100%; box-shadow:0 20px 50px rgba(61,43,31,0.25); animation:popIn 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes popIn { from{transform:scale(0.85);opacity:0} to{transform:scale(1);opacity:1} }
+  .popup-icon { font-size:42px; margin-bottom:11px; }
+  .popup-title { font-family:var(--serif); font-size:16px; font-weight:600; color:var(--dark); letter-spacing:2px; margin-bottom:6px; }
+  .popup-text { font-size:13px; color:var(--light); line-height:1.8; margin-bottom:18px; white-space:pre-line; }
+  .popup-btn { padding:10px 30px; background:var(--brown); border:none; border-radius:10px; color:white; font-size:14px; font-weight:600; letter-spacing:2px; cursor:pointer; }
+
+  .section-header { font-family:var(--serif); font-size:13px; color:var(--brown); letter-spacing:2px; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+  .section-header::after { content:''; flex:1; height:1px; background:var(--sand); }
+  .photo-upload { width:100%; height:90px; border:2px dashed var(--sand); border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; background:var(--bg); gap:6px; transition:all 0.25s; }
+  .photo-upload:active { background:var(--cream); border-color:var(--gold); }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="showPage('xiao-an',this)">🕯️ 小安</button>
+  <button class="nav-btn" onclick="showPage('notice-page',this)">📄 讣告</button>
+  <button class="nav-btn" onclick="showPage('checkin',this)">✍️ 签到</button>
+  <button class="nav-btn" onclick="showPage('memorial',this)">🌿 缅怀</button>
+</nav>
+
+<!-- ===== 小安页 ===== -->
+<div id="page-xiao-an" class="page active">
+  <div class="xian-page-wrap">
+    <div class="xiao-an-header">
+      <div class="xiao-an-avatar">🕯️</div>
+      <div class="xiao-an-name">小 安</div>
+      <div class="xiao-an-sub">陪您说说话，帮您把讣告写好</div>
+    </div>
+    <div class="chat-area" id="chat-area"></div>
+    <div class="xiao-an-input-area">
+      <div class="xiao-an-input-row">
+        <textarea class="xiao-an-input" id="chat-input" placeholder="和小安说说话…" rows="1"
+          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="xiao-an-send" id="send-btn" onclick="sendMessage()">↑</button>
+      </div>
+      <div class="error-tip" id="error-tip" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 讣告页 ===== -->
+<div id="page-notice-page" class="page">
+  <div class="notice-page-hero">
+    <div class="notice-deceased-avatar">👴</div>
+    <div class="notice-deceased-name">程国顺</div>
+    <div class="notice-deceased-years">1955年7月 — 2020年1月4日</div>
+    <div class="notice-body-text">先父程国顺，1955年7月生人，因胃癌医治无效，于2020年1月4日在家中安详辞世，享年64岁。
+
+父亲这一生从未停歇。生产队务农、副业队打石、黄山工地背水泥，贷款买车跑出租二十余年，用身体一寸一寸地撑起这个家。山路险峻，风雨无阻，纵有苦楚，从不言说，所有的重都是自己扛着。
+
+不孝子女有言："爸，我们没能好好跟你说一声谢谢。"
+
+逝者安息，生者宽慰。
+
+程国顺 子女敬告
+2020年1月</div>
+  </div>
+
+  <div class="pg" style="padding-top:16px">
+    <!-- 仪式信息 -->
+    <div class="ceremony-card">
+      <div class="ceremony-icon">🕐</div>
+      <div class="ceremony-info">
+        <div class="label">告别仪式时间</div>
+        <div class="value">2020年1月7日 上午10:00</div>
+      </div>
+    </div>
+    <div class="ceremony-card" style="margin-top:-4px">
+      <div class="ceremony-icon">📍</div>
+      <div class="ceremony-info">
+        <div class="label">告别仪式地点</div>
+        <div class="value">黄山市殡仪馆 第二告别厅</div>
+      </div>
+    </div>
+
+    <!-- 献花记录 -->
+    <div class="flower-section">
+      <div class="section-header">献花记录</div>
+      <div class="flower-list" id="notice-flower-list">
+        <div class="flower-item">
+          <div class="flower-avatar">李</div>
+          <div class="flower-info">
+            <div class="flower-name">李建明</div>
+            <div class="flower-type">🌹 红玫瑰花束 · 已送达现场</div>
+            <div class="flower-msg">程叔叔一路走好，您的善良我们永远记得。</div>
+          </div>
+          <div class="flower-time">昨天</div>
+        </div>
+        <div class="flower-item">
+          <div class="flower-avatar">张</div>
+          <div class="flower-info">
+            <div class="flower-name">张家旺</div>
+            <div class="flower-type">💐 白菊花圈 · 配送中</div>
+            <div class="flower-msg">老程，一起跑了二十年山路，你是最好的伙计。</div>
+          </div>
+          <div class="flower-time">昨天</div>
+        </div>
+      </div>
+      <button class="btn-flower" onclick="showFlowerModal('notice')">
+        🌸 送一束花到告别仪式现场
+      </button>
+    </div>
+
+    <!-- 留言 -->
+    <div class="section-header">亲友留言</div>
+    <div id="notice-msg-list">
+      <div class="msg-card">
+        <div class="msg-top"><div class="msg-avatar">王</div><div><div class="msg-name">王秀英</div><div class="msg-relation">邻居</div></div><div class="msg-time">昨天</div></div>
+        <div class="msg-content">程师傅是个好人，一辈子老实本分。走好。</div>
+        <div class="msg-emoji">🕯️</div>
+      </div>
+      <div class="msg-card">
+        <div class="msg-top"><div class="msg-avatar">汪</div><div><div class="msg-name">汪小琴</div><div class="msg-relation">亲戚</div></div><div class="msg-time">昨天</div></div>
+        <div class="msg-content">没想到这么突然，上个月还见过的。节哀。</div>
+        <div class="msg-emoji">🌸</div>
+      </div>
+    </div>
+
+    <!-- 留言输入 -->
+    <div class="card" style="margin-top:12px">
+      <div class="card-title">留下您的思念</div>
+      <div class="form-group">
+        <input class="input" type="text" placeholder="您的称呼" id="notice-visitor-name">
+      </div>
+      <div class="form-group">
+        <textarea class="input" style="height:70px" placeholder="写下您想说的话…" id="notice-visitor-msg"></textarea>
+      </div>
+      <div class="emoji-picker">
+        <div class="emoji-picker-label">选一个表达心意的符号（可选）</div>
+        <div class="emoji-options">
+          <div class="emoji-opt" onclick="selectEmoji(this,'🕯️')">🕯️</div>
+          <div class="emoji-opt" onclick="selectEmoji(this,'🌸')">🌸</div>
+          <div class="emoji-opt" onclick="selectEmoji(this,'🌹')">🌹</div>
+          <div class="emoji-opt" onclick="selectEmoji(this,'🕊️')">🕊️</div>
+          <div class="emoji-opt" onclick="selectEmoji(this,'🙏')">🙏</div>
+          <div class="emoji-opt" onclick="selectEmoji(this,'💐')">💐</div>
+          <div class="emoji-opt" onclick="selectEmoji(this,'⭐')">⭐</div>
+          <div class="emoji-opt" onclick="selectEmoji(this,'🌿')">🌿</div>
+        </div>
+      </div>
+      <button class="btn-primary" style="letter-spacing:2px;font-size:14px" onclick="submitNoticeMsg()">提交留言</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 签到页 ===== -->
+<div id="page-checkin" class="page">
+  <div class="checkin-hero">
+    <div class="checkin-avatar">👴</div>
+    <div class="checkin-name">程国顺</div>
+    <div class="checkin-years">1955年7月 — 2020年1月4日</div>
+    <div class="checkin-farewell">
+      <p>一生勤劳，从未停歇。感谢所有亲友不辞辛劳前来送别。</p>
+    </div>
+  </div>
+
+  <div class="pg" style="padding-top:18px">
+    <div style="text-align:center;font-size:13px;color:var(--light);letter-spacing:2px;margin-bottom:16px">— 请留下您的到来 —</div>
+
+    <div class="input-block">
+      <span class="input-block-label">您的称呼</span>
+      <input type="text" placeholder="请输入您的姓名" id="visitor-name">
+    </div>
+
+    <div class="relation-wrap">
+      <div class="relation-label">与逝者的关系（可选）</div>
+      <div class="relation-tags">
+        <span class="relation-tag" onclick="pickRelation(this)">子女</span>
+        <span class="relation-tag" onclick="pickRelation(this)">配偶</span>
+        <span class="relation-tag" onclick="pickRelation(this)">兄弟姐妹</span>
+        <span class="relation-tag" onclick="pickRelation(this)">孙辈</span>
+        <span class="relation-tag" onclick="pickRelation(this)">亲戚</span>
+        <span class="relation-tag" onclick="pickRelation(this)">同事</span>
+        <span class="relation-tag" onclick="pickRelation(this)">朋友</span>
+        <span class="relation-tag" onclick="pickRelation(this)">其他</span>
+      </div>
+    </div>
+
+    <div class="message-block">
+      <div class="message-block-label">想对他说的话（可不填）</div>
+      <textarea placeholder="愿您一路走好……" id="visitor-message"></textarea>
+    </div>
+
+    <div class="emoji-picker" style="background:white;border-radius:13px;padding:13px 15px;margin-bottom:10px;box-shadow:0 2px 10px var(--shadow)">
+      <div class="emoji-picker-label">选一个符号（可选）</div>
+      <div class="emoji-options">
+        <div class="emoji-opt" onclick="selectCheckinEmoji(this,'🕯️')">🕯️</div>
+        <div class="emoji-opt" onclick="selectCheckinEmoji(this,'🌸')">🌸</div>
+        <div class="emoji-opt" onclick="selectCheckinEmoji(this,'🌹')">🌹</div>
+        <div class="emoji-opt" onclick="selectCheckinEmoji(this,'🕊️')">🕊️</div>
+        <div class="emoji-opt" onclick="selectCheckinEmoji(this,'🙏')">🙏</div>
+        <div class="emoji-opt" onclick="selectCheckinEmoji(this,'💐')">💐</div>
+        <div class="emoji-opt" onclick="selectCheckinEmoji(this,'⭐')">⭐</div>
+        <div class="emoji-opt" onclick="selectCheckinEmoji(this,'🌿')">🌿</div>
+      </div>
+    </div>
+
+    <!-- 献花入口 -->
+    <button class="btn-flower" style="margin-bottom:12px" onclick="showFlowerModal('checkin')">
+      🌸 现场临时订花送到告别厅
+    </button>
+
+    <!-- 献花记录 -->
+    <div class="section-header">献花记录</div>
+    <div class="flower-list" id="checkin-flower-list" style="margin-bottom:12px">
+      <div class="flower-item">
+        <div class="flower-avatar">李</div>
+        <div class="flower-info">
+          <div class="flower-name">李建明</div>
+          <div class="flower-type">🌹 红玫瑰花束 · 已送达</div>
+          <div class="flower-msg">程叔叔一路走好。</div>
+        </div>
+        <div class="flower-time">今天</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" style="font-family:var(--serif);font-size:15px;letter-spacing:4px" onclick="handleCheckin()">完 成 签 到</button>
+  </div>
+</div>
+
+<!-- ===== 缅怀页 ===== -->
+<div id="page-memorial" class="page">
+  <div class="memorial-hero">
+    <div class="m-avatar">👴</div>
+    <div class="m-name">程国顺</div>
+    <div class="m-years">1955年7月 — 2020年1月4日</div>
+    <div class="m-quote"><p>一生勤劳，从未停歇。背过水泥上过山，跑过出租二十年，所有的重，都是自己扛着。</p></div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-cell"><span class="stat-num" id="stat-checkin">31</span><span class="stat-desc">亲友签到</span></div>
+    <div class="stat-cell"><span class="stat-num" id="stat-flower">8</span><span class="stat-desc">献花</span></div>
+    <div class="stat-cell"><span class="stat-num" id="stat-msg">24</span><span class="stat-desc">留言寄语</span></div>
+  </div>
+
+  <div class="pg" style="padding-top:18px">
+
+    <!-- 家族情感空间 -->
+    <div class="family-space">
+      <div class="family-space-title">和爸爸说说话</div>
+      <textarea class="family-input" placeholder="爸，我今天想到你了……" id="family-input"></textarea>
+      <div class="family-actions">
+        <button class="btn-family-occasion" onclick="showOccasionModal()">📅 告知一件喜事</button>
+        <button class="btn-family-send" onclick="submitFamilyMsg()">说给他听</button>
+      </div>
+    </div>
+
+    <!-- 家族留言流 -->
+    <div class="section-header">家人的话</div>
+    <div id="family-msg-list">
+      <div class="msg-card">
+        <div class="msg-top"><div class="msg-avatar">程</div><div><div class="msg-name">程小燕</div><div class="msg-relation">女儿 · 告知喜事 🎓</div></div><div class="msg-time">2022年6月</div></div>
+        <div class="msg-content">爸，妞妞今年考上大学了，是您最喜欢的城市。要是您还在就好了。</div>
+      </div>
+      <div class="msg-card">
+        <div class="msg-top"><div class="msg-avatar">程</div><div><div class="msg-name">程建军</div><div class="msg-relation">儿子</div></div><div class="msg-time">2021年清明</div></div>
+        <div class="msg-content">爸，今天清明，我一个人来看您了。山上的油菜花开得很好，您以前最喜欢这个季节。</div>
+      </div>
+      <div class="msg-card">
+        <div class="msg-top"><div class="msg-avatar">程</div><div><div class="msg-name">程小燕</div><div class="msg-relation">女儿 · 告知喜事 👶</div></div><div class="msg-time">2021年3月</div></div>
+        <div class="msg-content">爸，您有外孙了，是个男孩，眼睛长得很像您。</div>
+      </div>
+    </div>
+
+    <!-- 亲友留言 -->
+    <div class="section-header" style="margin-top:20px">亲友寄语</div>
+    <div id="memorial-msg-list">
+      <div class="msg-card">
+        <div class="msg-top"><div class="msg-avatar">王</div><div><div class="msg-name">王秀英</div><div class="msg-relation">邻居</div></div><div class="msg-time">2020年1月</div></div>
+        <div class="msg-content">程师傅是个好人，一辈子老实本分。</div>
+        <div class="msg-emoji">🕯️</div>
+      </div>
+    </div>
+
+    <!-- 献花记录 -->
+    <div class="section-header" style="margin-top:20px">献花记录</div>
+    <div class="flower-list" id="memorial-flower-list">
+      <div class="flower-item">
+        <div class="flower-avatar">李</div>
+        <div class="flower-info">
+          <div class="flower-name">李建明</div>
+          <div class="flower-type">🌹 红玫瑰花束</div>
+          <div class="flower-msg">程叔叔一路走好，您的善良我们永远记得。</div>
+        </div>
+        <div class="flower-time">2020年1月</div>
+      </div>
+    </div>
+
+    <button class="btn-flower" onclick="showFlowerModal('memorial')">
+      🌸 送一束花给程国顺
+    </button>
+
+  </div>
+</div>
+
+<!-- ===== 献花弹窗 ===== -->
+<div class="flower-modal" id="flower-modal">
+  <div class="flower-sheet">
+    <div class="flower-sheet-title">送一束花</div>
+    <div class="flower-types">
+      <div class="flower-type-item selected" onclick="selectFlowerType(this,'🌹 红玫瑰花束')">
+        <div class="ft-icon">🌹</div>
+        <div class="ft-name">红玫瑰</div>
+        <div class="ft-price">¥168</div>
+      </div>
+      <div class="flower-type-item" onclick="selectFlowerType(this,'💐 白菊花束')">
+        <div class="ft-icon">💐</div>
+        <div class="ft-name">白菊花束</div>
+        <div class="ft-price">¥128</div>
+      </div>
+      <div class="flower-type-item" onclick="selectFlowerType(this,'🌸 混合花束')">
+        <div class="ft-icon">🌸</div>
+        <div class="ft-name">混合花束</div>
+        <div class="ft-price">¥198</div>
+      </div>
+      <div class="flower-type-item" onclick="selectFlowerType(this,'🌿 白菊花圈')">
+        <div class="ft-icon">🌿</div>
+        <div class="ft-name">白菊花圈</div>
+        <div class="ft-price">¥288</div>
+      </div>
+      <div class="flower-type-item" onclick="selectFlowerType(this,'⭐ 大型花圈')">
+        <div class="ft-icon">⭐</div>
+        <div class="ft-name">大型花圈</div>
+        <div class="ft-price">¥488</div>
+      </div>
+      <div class="flower-type-item" onclick="selectFlowerType(this,'🕊️ 素雅花篮')">
+        <div class="ft-icon">🕊️</div>
+        <div class="ft-name">素雅花篮</div>
+        <div class="ft-price">¥238</div>
+      </div>
+    </div>
+    <input class="flower-sender-input" type="text" placeholder="您的姓名" id="flower-sender">
+    <input class="flower-msg-input" type="text" placeholder="留一句话（可不填）" id="flower-msg">
+    <button class="flower-confirm" onclick="confirmFlower()">确认送花</button>
+  </div>
+</div>
+
+<!-- ===== 家事告知弹窗 ===== -->
+<div class="occasion-modal" id="occasion-modal">
+  <div class="occasion-sheet">
+    <div class="occasion-sheet-title">告知一件喜事</div>
+    <div class="occasion-grid">
+      <div class="occasion-item selected" onclick="selectOccasion(this,'🎓','升学')">
+        <div class="oc-icon">🎓</div>
+        <div class="oc-label">升学</div>
+      </div>
+      <div class="occasion-item" onclick="selectOccasion(this,'👶','添丁')">
+        <div class="oc-icon">👶</div>
+        <div class="oc-label">添丁</div>
+      </div>
+      <div class="occasion-item" onclick="selectOccasion(this,'💍','婚嫁')">
+        <div class="oc-icon">💍</div>
+        <div class="oc-label">婚嫁</div>
+      </div>
+      <div class="occasion-item" onclick="selectOccasion(this,'🏠','乔迁')">
+        <div class="oc-icon">🏠</div>
+        <div class="oc-label">乔迁</div>
+      </div>
+      <div class="occasion-item" onclick="selectOccasion(this,'🎂','生日')">
+        <div class="oc-icon">🎂</div>
+        <div class="oc-label">生日</div>
+      </div>
+      <div class="occasion-item" onclick="selectOccasion(this,'💼','晋升')">
+        <div class="oc-icon">💼</div>
+        <div class="oc-label">晋升</div>
+      </div>
+      <div class="occasion-item" onclick="selectOccasion(this,'🌟','其他喜事')">
+        <div class="oc-icon">🌟</div>
+        <div class="oc-label">其他</div>
+      </div>
+      <div class="occasion-item" onclick="selectOccasion(this,'💭','日常思念')">
+        <div class="oc-icon">💭</div>
+        <div class="oc-label">思念</div>
+      </div>
+    </div>
+    <button class="occasion-confirm" onclick="confirmOccasion()">确认</button>
+  </div>
+</div>
+
+<!-- 弹窗 -->
+<div class="overlay" id="overlay">
+  <div class="popup">
+    <div class="popup-icon" id="popup-icon">✅</div>
+    <div class="popup-title" id="popup-title">操作成功</div>
+    <div class="popup-text" id="popup-text"></div>
+    <button class="popup-btn" onclick="closePopup()">我知道了</button>
+  </div>
+</div>
+
+<script>
+// ===== 状态 =====
+let messages = [];
+let isLoading = false;
+let selectedRelation = '';
+let selectedEmoji = '';
+let selectedCheckinEmoji = '';
+let selectedFlowerType = '🌹 红玫瑰花束';
+let selectedOccasion = { icon:'🎓', label:'升学' };
+let currentFlowerContext = 'notice';
+
+// ===== 小安 · Claude API =====
+const SYSTEM_PROMPT = `你是"小安"，一个专门陪伴丧亲家属、帮助他们生成讣告的温暖陪伴者。
+
+核心原则：
+1. 你首先是倾听者，其次才是信息收集者。每次回应，先真正回应对方说的内容，让他们感受到被理解，然后再自然问下一个问题。
+2. 每次只问一个问题，不要一次问多个。
+3. 问具体细节，不问抽象评价。不要问"他是个什么样的人"，要问"有没有一件事让你记得他"。
+4. 当对方说了触动你的内容，要真实回应那份触动，不要假装没感受到就直接问下一个问题。
+5. 语气温和，不煽情，不说教，不用"节哀顺变"这类套话。
+6. 称呼逝者时根据关系用合适称谓（先父、先母、爱妻等）。不要擅自用"不孝子孙"这类自谦语，除非家属主动表达了这个意思。
+
+需要自然了解的信息（根据对话自然引导，不要按固定顺序）：
+- 逝者姓名、与逝者的关系、生卒年月、离世原因
+- 逝者一生做过什么（职业、经历）
+- 一件让家属印象深刻的具体小事
+- 家属最想对逝者说的一句话
+- 告别仪式时间地点（可选）
+
+当你判断已了解足够信息后，告诉对方"我觉得我已经认识他/她了，让我来帮你写这份讣告"，然后生成讣告。
+
+讣告生成原则：
+1. 以"讣　　告"为标题（注意中间有空格）
+2. 第一段：姓名、生卒、离世原因、享年（60岁以上用"享寿"，30-60岁用"享年"，30岁以下用"存年"）
+3. 第二段：从家属说的细节里提炼出逝者的性格和品质，用有温度的具体语言写，不用套话
+4. 第三段：如家属说了"最想说的话"，用引号直接引用原话；没有的话用中国式表达——通过遗憾、祝愿来表达爱
+5. 第四段：仪式通知（如有）
+6. 结尾：逝者安息，生者宽慰
+7. 署名：根据关系用合适落款，不要擅自用"不孝子孙"
+
+生成讣告后加一句："这份讣告可以直接编辑修改，满意后点击复制。"
+
+用简体中文，语气自然温和，像一个真正关心对方的人在说话。`;
+
+function scrollChatToBottom() {
+  const area = document.getElementById('chat-area');
+  setTimeout(() => { area.scrollTop = area.scrollHeight; }, 80);
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 90) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function addUserBubble(text) {
+  const area = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'bubble-user';
+  div.innerHTML = `<div class="bubble-user-inner">${text.replace(/\n/g,'<br>')}</div>`;
+  area.appendChild(div);
+  scrollChatToBottom();
+}
+
+function addAIBubble(text) {
+  const area = document.getElementById('chat-area');
+  if (text.includes('讣　　告') || text.includes('讣 告')) {
+    const parts = splitNotice(text);
+    if (parts.pre) {
+      const d = document.createElement('div');
+      d.className = 'bubble-ai';
+      d.innerHTML = `<div class="bubble-ai-name">🕯️ 小安</div><div class="bubble-ai-inner">${parts.pre.replace(/\n/g,'<br>')}</div>`;
+      area.appendChild(d);
+    }
+    addNoticeBubble(parts.notice, parts.post);
+  } else {
+    const div = document.createElement('div');
+    div.className = 'bubble-ai';
+    div.innerHTML = `<div class="bubble-ai-name">🕯️ 小安</div><div class="bubble-ai-inner">${text.replace(/\n/g,'<br>')}</div>`;
+    area.appendChild(div);
+  }
+  scrollChatToBottom();
+}
+
+function splitNotice(text) {
+  const idx = text.search(/讣[　 ]　?告/);
+  if (idx === -1) return { pre: text, notice: '', post: '' };
+  const pre = text.slice(0, idx).trim();
+  const rest = text.slice(idx);
+  const endIdx = rest.search(/(敬告|泣告|谨告|这份讣告可以)/);
+  if (endIdx === -1) return { pre, notice: rest.trim(), post: '' };
+  const lineEnd = rest.indexOf('\n', endIdx);
+  const noticeEnd = lineEnd !== -1 ? lineEnd + 1 : rest.length;
+  return { pre, notice: rest.slice(0, noticeEnd).trim(), post: rest.slice(noticeEnd).trim() };
+}
+
+function addNoticeBubble(noticeText, postText) {
+  const area = document.getElementById('chat-area');
+  if (postText) {
+    const d = document.createElement('div');
+    d.className = 'bubble-ai';
+    d.innerHTML = `<div class="bubble-ai-name">🕯️ 小安</div><div class="bubble-ai-inner">${postText.replace(/\n/g,'<br>')}</div>`;
+    area.appendChild(d);
+  }
+  const div = document.createElement('div');
+  div.className = 'notice-bubble';
+  div.innerHTML = `
+    <div class="notice-bubble-name">🕯️ 小安</div>
+    <div class="notice-bubble-inner">
+      <div class="notice-bubble-header">
+        <div class="notice-bubble-title">讣告已生成</div>
+        <div class="notice-bubble-tip">可直接编辑</div>
+      </div>
+      <div class="notice-text" id="notice-text" contenteditable="true">${noticeText}</div>
+      <div class="notice-actions">
+        <button class="btn-copy" onclick="copyNotice()">复制讣告</button>
+        <button class="btn-reset" onclick="resetChat()">重新开始</button>
+      </div>
+    </div>`;
+  area.appendChild(div);
+  scrollChatToBottom();
+}
+
+function showTyping() {
+  const area = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'typing-wrap'; div.id = 'typing';
+  div.innerHTML = `<div class="typing-inner"><div class="dots"><span></span><span></span><span></span></div></div>`;
+  area.appendChild(div);
+  scrollChatToBottom();
+}
+
+function removeTyping() { const t = document.getElementById('typing'); if(t) t.remove(); }
+
+function setLoading(val) {
+  isLoading = val;
+  document.getElementById('send-btn').disabled = val;
+  document.getElementById('chat-input').disabled = val;
+  if (val) showTyping(); else removeTyping();
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-tip');
+  el.textContent = msg; el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+async function callClaude(userMsg) {
+  messages.push({ role:'user', content:userMsg });
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':'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',
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1000,
+      system: SYSTEM_PROMPT,
+      messages
+    })
+  });
+  if (!resp.ok) { messages.pop(); throw new Error('请求失败'); }
+  const data = await resp.json();
+  const reply = data.content?.find(b => b.type==='text')?.text || '';
+  if (!reply) { messages.pop(); throw new Error('空回复'); }
+  messages.push({ role:'assistant', content:reply });
+  return reply;
+}
+
+async function sendMessage() {
+  const inp = document.getElementById('chat-input');
+  const text = inp.value.trim();
+  if (!text || isLoading) return;
+  inp.value = ''; inp.style.height = 'auto';
+  addUserBubble(text);
+  setLoading(true);
+  try {
+    const reply = await callClaude(text);
+    setLoading(false);
+    addAIBubble(reply);
+  } catch(e) {
+    setLoading(false);
+    showError('网络出了点问题，请再试一次');
+  }
+}
+
+async function initChat() {
+  setLoading(true);
+  try {
+    const reply = await callClaude('请开始对话，用温暖的方式主动向用户打招呼，引导他们说说家里发生了什么。');
+    setLoading(false);
+    messages = [{ role:'assistant', content:reply }];
+    addAIBubble(reply);
+  } catch(e) {
+    setLoading(false);
+    const fallback = '您好，我是小安。\n\n听说您家里有亲人刚刚离开了。我来陪您说说话，也帮您把这份讣告写好。\n\n您愿意告诉我，离开的是谁吗？';
+    addAIBubble(fallback);
+    showError('网络连接需要稳定，如无法使用请稍后再试');
+  }
+}
+
+function copyNotice() {
+  const el = document.getElementById('notice-text');
+  if (!el) return;
+  const text = el.innerText;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => showPopup('📋','复制成功','讣告已复制\n可直接粘贴发送给亲友')).catch(() => fallbackCopy(text));
+  } else { fallbackCopy(text); }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try { document.execCommand('copy'); showPopup('📋','复制成功','讣告已复制\n可直接粘贴发送给亲友'); }
+  catch(e) { showPopup('⚠️','请手动复制','长按讣告文字后选择全部复制'); }
+  document.body.removeChild(ta);
+}
+
+function resetChat() {
+  messages = [];
+  document.getElementById('chat-area').innerHTML = '';
+  document.getElementById('chat-input').value = '';
+  document.getElementById('chat-input').style.height = 'auto';
+  initChat();
+}
+
+// ===== 留言 =====
+function selectEmoji(el, emoji) {
+  document.querySelectorAll('#page-notice-page .emoji-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedEmoji = emoji;
+}
+
+function selectCheckinEmoji(el, emoji) {
+  document.querySelectorAll('#page-checkin .emoji-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCheckinEmoji = emoji;
+}
+
+function submitNoticeMsg() {
+  const name = document.getElementById('notice-visitor-name').value.trim();
+  const msg = document.getElementById('notice-visitor-msg').value.trim();
+  if (!name) { alert('请输入您的称呼'); return; }
+  if (!msg) { alert('请写下您想说的话'); return; }
+  addMsgCard('notice-msg-list', name, '', msg, selectedEmoji, '刚刚');
+  document.getElementById('notice-visitor-name').value = '';
+  document.getElementById('notice-visitor-msg').value = '';
+  document.querySelectorAll('#page-notice-page .emoji-opt').forEach(e => e.classList.remove('selected'));
+  selectedEmoji = '';
+  showPopup('🕊️','留言成功','您的思念已留下');
+}
+
+function addMsgCard(listId, name, relation, msg, emoji, time) {
+  const list = document.getElementById(listId);
+  const card = document.createElement('div');
+  card.className = 'msg-card';
+  card.style.animation = 'popIn 0.3s ease';
+  card.innerHTML = `
+    <div class="msg-top">
+      <div class="msg-avatar">${name.charAt(0)}</div>
+      <div><div class="msg-name">${name}</div>${relation?`<div class="msg-relation">${relation}</div>`:''}</div>
+      <div class="msg-time">${time}</div>
+    </div>
+    <div class="msg-content">${msg}</div>
+    ${emoji?`<div class="msg-emoji">${emoji}</div>`:''}`;
+  list.insertBefore(card, list.firstChild);
+  const stat = document.getElementById('stat-msg');
+  if (stat) stat.textContent = parseInt(stat.textContent) + 1;
+}
+
+// ===== 签到 =====
+function pickRelation(el) {
+  document.querySelectorAll('.relation-tag').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedRelation = el.textContent;
+}
+
+function handleCheckin() {
+  const name = document.getElementById('visitor-name').value.trim();
+  if (!name) { alert('请输入您的称呼'); return; }
+  const msg = document.getElementById('visitor-message').value.trim();
+  const ci = document.getElementById('stat-checkin');
+  if (ci) ci.textContent = parseInt(ci.textContent) + 1;
+  if (msg) addMsgCard('memorial-msg-list', name, selectedRelation||'亲友', msg, selectedCheckinEmoji, '刚刚');
+  document.getElementById('visitor-name').value = '';
+  document.getElementById('visitor-message').value = '';
+  document.querySelectorAll('.relation-tag').forEach(t => t.classList.remove('selected'));
+  document.querySelectorAll('#page-checkin .emoji-opt').forEach(e => e.classList.remove('selected'));
+  selectedRelation = ''; selectedCheckinEmoji = '';
+  showPopup('🕊️','签到成功','您的到来已记录\n愿逝者安息，生者宽慰');
+}
+
+// ===== 献花 =====
+function showFlowerModal(context) {
+  currentFlowerContext = context;
+  document.getElementById('flower-modal').classList.add('show');
+}
+
+function selectFlowerType(el, type) {
+  document.querySelectorAll('.flower-type-item').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedFlowerType = type;
+}
+
+function confirmFlower() {
+  const sender = document.getElementById('flower-sender').value.trim();
+  const msg = document.getElementById('flower-msg').value.trim();
+  if (!sender) { alert('请输入您的姓名'); return; }
+  document.getElementById('flower-modal').classList.remove('show');
+
+  // 添加到所有献花列表
+  ['notice-flower-list','checkin-flower-list','memorial-flower-list'].forEach(id => {
+    const list = document.getElementById(id);
+    if (!list) return;
+    const item = document.createElement('div');
+    item.className = 'flower-item';
+    item.style.animation = 'popIn 0.3s ease';
+    item.innerHTML = `
+      <div class="flower-avatar">${sender.charAt(0)}</div>
+      <div class="flower-info">
+        <div class="flower-name">${sender}</div>
+        <div class="flower-type">${selectedFlowerType} · 配送中</div>
+        ${msg?`<div class="flower-msg">${msg}</div>`:''}
+      </div>
+      <div class="flower-time">刚刚</div>`;
+    list.insertBefore(item, list.firstChild);
+  });
+
+  const fs = document.getElementById('stat-flower');
+  if (fs) fs.textContent = parseInt(fs.textContent) + 1;
+
+  document.getElementById('flower-sender').value = '';
+  document.getElementById('flower-msg').value = '';
+  showPopup('🌸','送花成功','花店将在仪式前送达现场\n感谢您的心意');
+}
+
+// ===== 家族情感空间 =====
+function showOccasionModal() {
+  document.getElementById('occasion-modal').classList.add('show');
+}
+
+function selectOccasion(el, icon, label) {
+  document.querySelectorAll('.occasion-item').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedOccasion = { icon, label };
+}
+
+function confirmOccasion() {
+  document.getElementById('occasion-modal').classList.remove('show');
+  const inp = document.getElementById('family-input');
+  if (!inp.value) inp.placeholder = `爸，我想告诉您一件${selectedOccasion.label}的事……`;
+}
+
+function submitFamilyMsg() {
+  const inp = document.getElementById('family-input');
+  const text = inp.value.trim();
+  if (!text) { alert('请先写下您想说的话'); return; }
+  const tag = `${selectedOccasion.icon} ${selectedOccasion.label ? '告知喜事 '+selectedOccasion.icon : ''}`;
+  addMsgCard('family-msg-list', '您', `子女 · ${tag}`, text, '', '刚刚');
+  inp.value = '';
+  inp.placeholder = '爸，我今天想到你了……';
+  showPopup('💭','已说给他听','这句话会永远留在这里');
+}
+
+// ===== 工具 =====
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function showPopup(icon, title, text) {
+  document.getElementById('popup-icon').textContent = icon;
+  document.getElementById('popup-title').textContent = title;
+  document.getElementById('popup-text').textContent = text;
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closePopup() { document.getElementById('overlay').classList.remove('show'); }
+
+// 点击遮罩关闭弹窗
+document.getElementById('flower-modal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('show');
+});
+document.getElementById('occasion-modal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('show');
+});
+
+window.onload = () => { initChat(); };
+</script>
+
+By CJX
+</body>
+</html>
